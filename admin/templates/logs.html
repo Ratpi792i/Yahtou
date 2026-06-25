@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Journaux d'audit{% endblock %}
+{% block content %}
+<h1>Journaux d'audit</h1>
+<p class="subtitle">Consultation des tentatives d'accès — lecture seule</p>
+
+{% if integrity.valid %}
+<div class="integrity valid">
+    ✓ Intégrité vérifiée — {{ integrity.total }} entrée(s), chaînage HMAC intact
+</div>
+{% else %}
+<div class="integrity invalid">
+    ⚠ ALERTE — {{ integrity.corrupted|length }} entrée(s) corrompue(s) détectée(s) : {{ integrity.corrupted }}
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Filtrer les journaux</h2>
+    <form method="GET" action="{{ url_for('logs_view') }}">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="identity">Identité</label>
+                <input type="text" id="identity" name="identity" value="{{ request.args.get('identity', '') }}" placeholder="ex: eliel">
+            </div>
+            <div class="form-group">
+                <label for="result">Résultat</label>
+                <select id="result" name="result">
+                    <option value="">Tous</option>
+                    <option value="ACCEPT" {% if request.args.get('result') == 'ACCEPT' %}selected{% endif %}>ACCEPT</option>
+                    <option value="REJECT" {% if request.args.get('result') == 'REJECT' %}selected{% endif %}>REJECT</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Filtrer</button>
+            <a href="{{ url_for('logs_view') }}" class="btn secondary" style="text-decoration:none;">Réinitialiser</a>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Entrées ({{ logs|length }})</h2>
+    {% if logs %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Horodatage</th>
+                <th>Identité</th>
+                <th>Adresse MAC</th>
+                <th>IP NAS</th>
+                <th>Résultat</th>
+                <th>VLAN</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.id }}</td>
+                <td>{{ log.timestamp[:19] }}</td>
+                <td>{{ log.identity }}</td>
+                <td>{{ log.mac_address }}</td>
+                <td>{{ log.ip_nas }}</td>
+                <td>
+                    {% if log.result == 'ACCEPT' %}
+                        <span class="badge accept">ACCEPT</span>
+                    {% else %}
+                        <span class="badge reject">REJECT</span>
+                    {% endif %}
+                </td>
+                <td>{% if log.vlan %}<span class="badge vlan">VLAN {{ log.vlan }}</span>{% else %}—{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: var(--muted);">Aucune entrée correspondant aux critères.</p>
+    {% endif %}
+</div>
+{% endblock %}

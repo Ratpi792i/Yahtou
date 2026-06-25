@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<h1>Tableau de bord</h1>
+<p class="subtitle">Vue d'ensemble du système d'authentification Yahtou</p>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="value">{{ users|length }}</div>
+        <div class="label">Utilisateurs enregistrés</div>
+    </div>
+    <div class="stat-card green">
+        <div class="value">{{ stats.accepts }}</div>
+        <div class="label">Accès autorisés</div>
+    </div>
+    <div class="stat-card red">
+        <div class="value">{{ stats.rejects }}</div>
+        <div class="label">Accès refusés</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ stats.total }}</div>
+        <div class="label">Total des tentatives</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Dernières tentatives d'accès</h2>
+    {% if recent_logs %}
+    <table>
+        <thead>
+            <tr>
+                <th>Horodatage</th>
+                <th>Identité</th>
+                <th>Adresse MAC</th>
+                <th>Résultat</th>
+                <th>VLAN</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in recent_logs %}
+            <tr>
+                <td>{{ log.timestamp[:19] }}</td>
+                <td>{{ log.identity }}</td>
+                <td>{{ log.mac_address }}</td>
+                <td>
+                    {% if log.result == 'ACCEPT' %}
+                        <span class="badge accept">ACCEPT</span>
+                    {% else %}
+                        <span class="badge reject">REJECT</span>
+                    {% endif %}
+                </td>
+                <td>{% if log.vlan %}<span class="badge vlan">VLAN {{ log.vlan }}</span>{% else %}—{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: var(--muted);">Aucune tentative d'accès enregistrée pour le moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

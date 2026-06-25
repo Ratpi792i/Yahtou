@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Yahtou{% endblock %} — Administration</title>
+    <style>
+        :root {
+            --navy: #1A3C5E;
+            --navy-dark: #142F49;
+            --accent: #4A7FA5;
+            --light: #E8EDF2;
+            --bg: #F4F6F8;
+            --green: #1E6B3C;
+            --green-bg: #D6EFE0;
+            --red: #8B1A1A;
+            --red-bg: #FAE0E0;
+            --orange: #8B4F0A;
+            --text: #1E2B3C;
+            --muted: #6B7C8D;
+            --border: #D0D9E2;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        /* Barre supérieure */
+        header {
+            background: var(--navy);
+            color: white;
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        header .logo {
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        header .logo span { color: var(--accent); }
+        header nav { display: flex; gap: 4px; align-items: center; }
+        header nav a {
+            color: #C5D5E3;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.15s;
+        }
+        header nav a:hover { background: var(--navy-dark); color: white; }
+        header nav a.active { background: var(--accent); color: white; }
+        .badge-role {
+            font-size: 12px;
+            background: var(--accent);
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+        /* Conteneur principal */
+        .container { max-width: 1100px; margin: 28px auto; padding: 0 24px; }
+        h1 { font-size: 26px; color: var(--navy); margin-bottom: 6px; }
+        .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
+        /* Cartes */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .card h2 { font-size: 17px; color: var(--navy); margin-bottom: 16px; }
+        /* Statistiques */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--accent);
+        }
+        .stat-card .value { font-size: 32px; font-weight: bold; color: var(--navy); }
+        .stat-card .label { color: var(--muted); font-size: 13px; margin-top: 4px; }
+        .stat-card.green { border-left-color: var(--green); }
+        .stat-card.green .value { color: var(--green); }
+        .stat-card.red { border-left-color: var(--red); }
+        .stat-card.red .value { color: var(--red); }
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th {
+            background: var(--navy);
+            color: white;
+            text-align: left;
+            padding: 11px 14px;
+            font-weight: 600;
+        }
+        th:first-child { border-radius: 6px 0 0 0; }
+        th:last-child { border-radius: 0 6px 0 0; }
+        td { padding: 11px 14px; border-bottom: 1px solid var(--border); }
+        tr:nth-child(even) td { background: #FAFBFC; }
+        tr:hover td { background: var(--light); }
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge.accept, .badge.active { background: var(--green-bg); color: var(--green); }
+        .badge.reject, .badge.inactive { background: var(--red-bg); color: var(--red); }
+        .badge.vlan { background: var(--light); color: var(--navy); }
+        .badge.employe { background: #D6E4F0; color: var(--navy); }
+        .badge.invite { background: var(--green-bg); color: var(--green); }
+        .badge.quarantaine { background: var(--red-bg); color: var(--red); }
+        /* Formulaires */
+        input, select {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--accent); }
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s;
+        }
+        .btn:hover { background: var(--navy); }
+        .btn.danger { background: var(--red); }
+        .btn.danger:hover { background: #6E1414; }
+        .btn.small { padding: 5px 12px; font-size: 13px; }
+        .btn.secondary { background: var(--muted); }
+        .form-row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 13px; color: var(--muted); font-weight: 600; }
+        /* Messages flash */
+        .flash {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .flash.success { background: var(--green-bg); color: var(--green); border: 1px solid #A5D6BC; }
+        .flash.error { background: var(--red-bg); color: var(--red); border: 1px solid #E0A5A5; }
+        /* Bandeau intégrité */
+        .integrity {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .integrity.valid { background: var(--green-bg); color: var(--green); }
+        .integrity.invalid { background: var(--red-bg); color: var(--red); }
+        .actions-cell { display: flex; gap: 6px; }
+        .inline-form { display: inline; }
+    </style>
+</head>
+<body>
+    {% if session.admin %}
+    <header>
+        <div class="logo">Yahtou<span>·</span>Admin</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Tableau de bord</a>
+            <a href="{{ url_for('users_list') }}" class="{% if request.endpoint == 'users_list' %}active{% endif %}">Utilisateurs</a>
+            <a href="{{ url_for('logs_view') }}" class="{% if request.endpoint == 'logs_view' %}active{% endif %}">Journaux</a>
+            <span class="badge-role">{{ session.role }}</span>
+            <a href="{{ url_for('logout') }}">Déconnexion</a>
+        </nav>
+    </header>
+    {% endif %}
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

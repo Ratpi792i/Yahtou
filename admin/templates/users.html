@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Utilisateurs{% endblock %}
+{% block content %}
+<h1>Gestion des utilisateurs</h1>
+<p class="subtitle">Création, modification et suppression des comptes machines</p>
+
+{% if role == 'super-admin' %}
+<div class="card">
+    <h2>Créer un utilisateur</h2>
+    <form method="POST" action="{{ url_for('users_create') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="role">Rôle</label>
+                <select id="role" name="role" required>
+                    {% for r in roles %}
+                    <option value="{{ r.name }}">{{ r.name }} (VLAN {{ r.vlan_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn">Créer</button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Liste des utilisateurs ({{ users|length }})</h2>
+    {% if users %}
+    <table>
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Rôle</th>
+                <th>VLAN</th>
+                <th>Statut</th>
+                {% if role == 'super-admin' %}<th>Actions</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td><strong>{{ user.username }}</strong></td>
+                <td><span class="badge {{ user.role }}">{{ user.role }}</span></td>
+                <td><span class="badge vlan">VLAN {{ user.vlan_id }}</span></td>
+                <td>
+                    {% if user.active %}
+                        <span class="badge active">Actif</span>
+                    {% else %}
+                        <span class="badge inactive">Désactivé</span>
+                    {% endif %}
+                </td>
+                {% if role == 'super-admin' %}
+                <td>
+                    <div class="actions-cell">
+                        <form method="POST" action="{{ url_for('users_toggle', username=user.username) }}" class="inline-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn small secondary">
+                                {% if user.active %}Désactiver{% else %}Activer{% endif %}
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('users_delete', username=user.username) }}" class="inline-form" onsubmit="return confirm('Supprimer {{ user.username }} ?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn small danger">Supprimer</button>
+                        </form>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: var(--muted);">Aucun utilisateur enregistré.</p>
+    {% endif %}
+</div>
+{% endblock %}
